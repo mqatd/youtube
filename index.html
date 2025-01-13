@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fullscreen YouTube</title>
+<style>
+  #video-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+</head>
+<body>
+
+<div id="video-container">
+  <iframe id="youtube-player" width="560" height="315" src="https://www.youtube.com/embed/2hmuSOc29C0?si=uRHB7QHVWC8tJzd_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const iframe = document.getElementById('youtube-player');
+      const container = document.getElementById('video-container');
+
+
+      // Function to trigger fullscreen for different browsers.
+      function requestFullscreen(element) {
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if (element.webkitRequestFullscreen) { // Safari
+        element.webkitRequestFullscreen();
+      } else if (element.msRequestFullscreen) { // IE
+        element.msRequestFullscreen();
+      } else if (element.mozRequestFullScreen) { //Firefox
+        element.mozRequestFullScreen();
+      }
+    }
+
+      requestFullscreen(container) // request the video container to fill the screen.
+
+    });
+</script>
+
+</body>
+</html>
