@@ -1,45 +1,337 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Fullscreen YouTube</title>
-<style>
-  #video-container {
-    width: 100%;
-    height: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stylish Music Player</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Previous CSS styles remain the same */
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #dfe6e9;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .player {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            backdrop-filter: blur(10px);
+        }
+
+        .album-art {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 1rem;
+            border-radius: 1rem;
+            background: var(--light);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .track-info {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .track-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .track-artist {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0.5rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--light);
+            border-radius: 3px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .progress-bar:hover .progress::after {
+            opacity: 1;
+        }
+
+        .time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: var(--dark);
+            background: rgba(223, 230, 233, 0.3);
+        }
+
+        .control-btn i {
+            font-size: 1.2rem;
+        }
+
+        .control-btn:hover {
+            background: var(--light);
+            transform: scale(1.1);
+        }
+
+        .play-btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            width: 60px;
+            height: 60px;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .play-btn i {
+            font-size: 1.5rem;
+        }
+
+        .play-btn:hover {
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            transform: scale(1.1) rotate(180deg);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: rgba(223, 230, 233, 0.3);
+            border-radius: 1rem;
+        }
+
+        .volume-icon {
+            color: var(--dark);
+            width: 24px;
+            text-align: center;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            background: var(--light);
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .playing .play-btn {
+            animation: pulse 2s infinite;
+        }
+    </style>
 </head>
 <body>
+    <div class="player">
+        <audio id="audio-player" src="https://files.catbox.moe/evwlar.mp3"></audio>
+        
+        <div class="album-art">
+            <img src="image.jpeg" alt="Album Art">
+        </div>
+        
+        <div class="track-info">
+            <h2 class="track-title">Music Track</h2>
+            <p class="track-artist">Artist Name</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+        
+        <div class="time">
+            <span class="current-time">0:00</span>
+            <span class="total-time">0:00</span>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" id="prev-btn">
+                <i class="fas fa-backward-step"></i>
+            </button>
+            <button class="control-btn play-btn" id="play-btn">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="control-btn" id="next-btn">
+                <i class="fas fa-forward-step"></i>
+            </button>
+        </div>
+        
+        <div class="volume-control">
+            <i class="fas fa-volume-high volume-icon"></i>
+            <input type="range" class="volume-slider" min="0" max="100" value="80">
+        </div>
+    </div>
 
-<div id="video-container">
-  <iframe id="youtube-player" width="560" height="315" src="https://www.youtube.com/embed/2hmuSOc29C0?si=uRHB7QHVWC8tJzd_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const iframe = document.getElementById('youtube-player');
-      const container = document.getElementById('video-container');
+    <script>
+        const audioPlayer = document.getElementById('audio-player');
+        const player = document.querySelector('.player');
+        const playBtn = document.querySelector('.play-btn');
+        const playIcon = playBtn.querySelector('i');
+        const progress = document.querySelector('.progress');
+        const progressBar = document.querySelector('.progress-bar');
+        const currentTimeEl = document.querySelector('.current-time');
+        const totalTimeEl = document.querySelector('.total-time');
+        const volumeIcon = document.querySelector('.volume-icon');
+        const volumeSlider = document.querySelector('.volume-slider');
 
+        // Format time in minutes and seconds
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            seconds = Math.floor(seconds % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
 
-      // Function to trigger fullscreen for different browsers.
-      function requestFullscreen(element) {
-      if (element.requestFullscreen) {
-        element.requestFullscreen();
-      } else if (element.webkitRequestFullscreen) { // Safari
-        element.webkitRequestFullscreen();
-      } else if (element.msRequestFullscreen) { // IE
-        element.msRequestFullscreen();
-      } else if (element.mozRequestFullScreen) { //Firefox
-        element.mozRequestFullScreen();
-      }
-    }
+        // Play/Pause functionality
+        playBtn.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+        });
 
-      requestFullscreen(container) // request the video container to fill the screen.
+        // Update play/pause button and animation
+        audioPlayer.addEventListener('play', () => {
+            playIcon.className = 'fas fa-pause';
+            player.classList.add('playing');
+        });
 
-    });
-</script>
+        audioPlayer.addEventListener('pause', () => {
+            playIcon.className = 'fas fa-play';
+            player.classList.remove('playing');
+        });
 
+        // Update progress bar and time
+        audioPlayer.addEventListener('timeupdate', () => {
+            const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progress.style.width = `${percent}%`;
+            currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+        });
+
+        // Set duration when metadata is loaded
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            totalTimeEl.textContent = formatTime(audioPlayer.duration);
+        });
+
+        // Click on progress bar to seek
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audioPlayer.currentTime = percent * audioPlayer.duration;
+        });
+
+        // Volume control
+        volumeSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            audioPlayer.volume = value / 100;
+            
+            if (value == 0) {
+                volumeIcon.className = 'fas fa-volume-mute';
+            } else if (value < 50) {
+                volumeIcon.className = 'fas fa-volume-low';
+            } else {
+                volumeIcon.className = 'fas fa-volume-high';
+            }
+        });
+
+        // Set initial volume
+        audioPlayer.volume = volumeSlider.value / 100;
+    </script>
 </body>
 </html>
